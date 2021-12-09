@@ -2,13 +2,16 @@ import discord #import all the necessary modules
 from discord.ext import commands
 import os
 import random
+from dotenv import load_dotenv
 
 # for champion_counter
 from bs4 import BeautifulSoup
 import requests
 
-from Constants import MYTHICS, CHAMPIONS, BOOTS, ITEMS, ROLES, SUMMONER_SPELLS, RUNES, QUOTES, SHARDS
+from Constants import MYTHICS, CHAMPIONS, BOOTS, ITEMS, ROLES, SUMMONER_SPELLS, RUNES, QUOTES, SHARDS, ABILITIES
 
+load_dotenv()
+os.environ["TOKEN"]
 DISCORD_TOKEN = os.environ["TOKEN"]
 
 help_command = commands.DefaultHelpCommand(
@@ -55,6 +58,11 @@ def random_role():
 def random_summoner_spell():
   return random.choice(SUMMONER_SPELLS)
 
+def random_ability_order():
+  abilities = ABILITIES
+  random.shuffle(abilities)
+  return abilities
+
 def random_runes():
   pagename = random.choice(list(RUNES.keys()))
   runepage = RUNES[pagename]
@@ -76,6 +84,7 @@ def random_build():
   champion = random_champion()
   role = random_role()
 
+  ability_order = random_ability_order()
   summoner_spells = []
   if role == "Jungle": summoner_spells = summoner_spells + ["Smite"] 
   while len(summoner_spells) < 2:
@@ -110,6 +119,7 @@ def random_build():
     'Secondary runes': secondary_runes,
     'Shards': shards,
     'Summoner spells': summoner_spells,
+    'Abilities': ability_order,
     'Boots': boots,
     'Mythic': mythic,
     'Items': items
@@ -202,6 +212,11 @@ class CommandsHandler(commands.Cog):
     "Displays a random summoners spell"
     await ctx.send(random_summoner_spell())
 
+  @commands.command(name="abilities")
+  async def summoner_spell(self, ctx):
+    "Displays the abilities in random order"
+    await ctx.send(random_ability_order())
+
 
   @commands.command()
   async def build(self, ctx):
@@ -215,6 +230,7 @@ class CommandsHandler(commands.Cog):
     secondary = build.get('Secondary runes')
     shards = ', '.join(build.get('Shards'))
     sums = ', '.join(build.get('Summoner spells'))
+    abilities = ', '.join(build.get('Abilities'))
     items = ', '.join(build.get('Items'))
 
     icon_url = champion.split('&', 1)[0].replace('.', '').replace(' ', '').replace(' ', ' ')
@@ -230,6 +246,7 @@ class CommandsHandler(commands.Cog):
     embed.add_field(name="**Secondary runes - {}**".format(secondary.get('name')), value=', '.join(secondary.get('keystones')), inline=False)
     embed.add_field(name="**Shards**", value=shards, inline=False)
     embed.add_field(name="**Summoner spells**", value=sums, inline=False)
+    embed.add_field(name="**Ability order**", value=abilities, inline=False)
     embed.add_field(name="**Boots**", value=build.get('Boots'), inline=False)
     embed.add_field(name="**Mythic**", value=build.get('Mythic'), inline=False)
     embed.add_field(name="**Items**", value=items, inline=False)

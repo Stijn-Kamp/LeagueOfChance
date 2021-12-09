@@ -385,3 +385,5 @@ SHARDS = [
   ["Adaptive Force", "Armor", "Magic resistance"],
   ["Health", "Armor", "Magic resistance"]
 ]
+
+ABILITIES = ['Q', 'W', 'E', 'R']
