@@ -22,7 +22,7 @@ bot = commands.Bot(
 # Functions
 def champion_counter(champion):
   BASE_URL = "https://lolcounter.com/champions/{}"
-  URL = BASE_URL.format(champion)
+  URL = BASE_URL.format(champion.replace("'",""))
   try:
     page = requests.get(URL).text
     soup = BeautifulSoup(page, 'html.parser')
@@ -145,7 +145,8 @@ class CommandsHandler(commands.Cog):
     await ctx.send(late_game())
 
   @commands.command()
-  async def counter(self, ctx, champion):
+  async def counter(self, ctx, *champion):
+    champion = '-'.join(champion)
     "Gives a random tip to counter a champion"
     await ctx.send(champion_counter(champion))
 
