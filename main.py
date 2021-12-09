@@ -162,8 +162,8 @@ class CommandsHandler(commands.Cog):
 
   @commands.command()
   async def counter(self, ctx, *champion):
-    champion = '-'.join(champion)
     "Gives a random tip to counter a champion"
+    champion = '-'.join(champion)
     await ctx.send(champion_counter(champion))
 
 
