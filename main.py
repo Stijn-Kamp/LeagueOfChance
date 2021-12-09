@@ -7,7 +7,7 @@ import random
 from bs4 import BeautifulSoup
 import requests
 
-from Constants import MYTHICS, CHAMPIONS, BOOTS, ITEMS, ROLES, SUMMONER_SPELLS, RUNES, QUOTES
+from Constants import MYTHICS, CHAMPIONS, BOOTS, ITEMS, ROLES, SUMMONER_SPELLS, RUNES, QUOTES, SHARDS
 
 DISCORD_TOKEN = os.environ["TOKEN"]
 
@@ -69,6 +69,9 @@ def random_runes():
   }
   return runepage
 
+def random_shards():
+  return [random.choice(shards) for shards in SHARDS]
+
 def random_build():
   champion = random_champion()
   role = random_role()
@@ -89,6 +92,8 @@ def random_build():
       runes['keystones'].pop(random.randrange(0, len(runes['keystones'])))
       secondary_runes = runes
 
+  shards = random_shards()
+
   #items
   boots = random_boots()
   mythic = random_mythic()
@@ -103,6 +108,7 @@ def random_build():
     'Role': role,
     'Primary runes': primairy_runes,
     'Secondary runes': secondary_runes,
+    'Shards': shards,
     'Summoner spells': summoner_spells,
     'Boots': boots,
     'Mythic': mythic,
@@ -186,6 +192,10 @@ class CommandsHandler(commands.Cog):
     "Displays a runepage with random keystones"
     await ctx.send(random_runes())
 
+  @commands.command()
+  async def shards(self, ctx):
+    "Displays random rune shards"
+    await ctx.send(random_shards())
 
   @commands.command(name="sum")
   async def summoner_spell(self, ctx):
@@ -203,43 +213,28 @@ class CommandsHandler(commands.Cog):
     champion = build.get('Champion')
     primary = build.get('Primary runes')
     secondary = build.get('Secondary runes')
+    shards = ', '.join(build.get('Shards'))
     sums = ', '.join(build.get('Summoner spells'))
     items = ', '.join(build.get('Items'))
 
+    icon_url = champion.split('&', 1)[0].replace('.', '').replace(' ', '').replace(' ', ' ')
+    icon_url = "http://ddragon.leagueoflegends.com/cdn/{}/img/champion/{}.png".format(PATCH, icon_url)
     embed=discord.Embed(color=discord.Color.blue())
     embed.set_author(
-      name="{}".format(champion), icon_url="http://ddragon.leagueoflegends.com/cdn/{}/img/champion/{}.png".format(PATCH, champion)
+      name="{}".format(champion), 
+      icon_url=icon_url
     )
 
     embed.add_field(name="**Role**", value=build.get('Role'), inline=False)
     embed.add_field(name="**Primary runes - {}**".format(primary.get('name')), value=', '.join(primary.get('keystones')), inline=False)
     embed.add_field(name="**Secondary runes - {}**".format(secondary.get('name')), value=', '.join(secondary.get('keystones')), inline=False)
+    embed.add_field(name="**Shards**", value=shards, inline=False)
     embed.add_field(name="**Summoner spells**", value=sums, inline=False)
     embed.add_field(name="**Boots**", value=build.get('Boots'), inline=False)
     embed.add_field(name="**Mythic**", value=build.get('Mythic'), inline=False)
     embed.add_field(name="**Items**", value=items, inline=False)
 
     await ctx.send(embed=embed)
-
-  @commands.command()
-  async def embed(self, ctx):
-      embed=discord.Embed(
-      title="Text Formatting",
-          url="https://realdrewdata.medium.com/",
-          description="Here are some ways to format text",
-          color=discord.Color.blue())
-      embed.set_author(name="RealDrewData", url="https://twitter.com/RealDrewData", icon_url="https://cdn-images-1.medium.com/fit/c/32/32/1*QVYjh50XJuOLQBeH_RZoGw.jpeg")
-      #embed.set_author(name=ctx.author.display_name, url="https://twitter.com/RealDrewData", icon_url=ctx.author.avatar_url)
-      embed.set_thumbnail(url="https://i.imgur.com/axLm3p6.jpeg")
-      embed.add_field(name="*Italics*", value="Surround your text in asterisks (\*)", inline=False)
-      embed.add_field(name="**Bold**", value="Surround your text in double asterisks (\*\*)", inline=False)
-      embed.add_field(name="__Underline__", value="Surround your text in double underscores (\_\_)", inline=False)
-      embed.add_field(name="~~Strikethrough~~", value="Surround your text in double tildes (\~\~)", inline=False)
-      embed.add_field(name="`Code Chunks`", value="Surround your text in backticks (\`)", inline=False)
-      embed.add_field(name="Blockquotes", value="> Start your text with a greater than symbol (\>)", inline=False)
-      embed.add_field(name="Secrets", value="||Surround your text with double pipes (\|\|)||", inline=False)
-      embed.set_footer(text="Learn more here: realdrewdata.medium.com")
-      await ctx.send(embed=embed)
 
 def setup(bot: commands.Bot):
   bot.add_cog(CommandsHandler(bot))

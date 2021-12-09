@@ -379,3 +379,9 @@ QUOTES = [
   "To shake, or not to shake.",
   "Cheater's just a fancy word for winner."
 ]
+
+SHARDS = [
+  ["Adaptive Force", "Attack speed", "Ability haste"],
+  ["Adaptive Force", "Armor", "Magic resistance"],
+  ["Health", "Armor", "Magic resistance"]
+]
