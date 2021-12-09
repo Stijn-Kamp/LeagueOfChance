@@ -255,7 +255,7 @@ async def on_message(message):
       return  
 
     mention = f'<@!{bot.user.id}>'
-    if mention in message.content:
+    if mention == message.content:
         await message.channel.send(random_quote())
 
     if 'late' in message.content.lower().split(' '):
