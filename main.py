@@ -198,28 +198,32 @@ class SummonerCommands(commands.Cog):
   async def summoner_info(self, ctx, *summoner_name):
     # formatting example
     "Gives information on a summoner"
-    summoner_info = get_summoner_info('+'.join(summoner_name))
-    if summoner_info:
-      summoner_name = summoner_info.get('Summoner name')
-      summoner_icon = summoner_info.get('Icon')
-      summoner_level = summoner_info.get('Level')
-      win_rate = summoner_info.get('Win ratio')
-      solo_rank = summoner_info.get('Solo rank')
-      flex_rank = summoner_info.get('Flex rank')
+    if summoner_name:
+      summoner_info = get_summoner_info('+'.join(summoner_name))
+      if summoner_info:
+        summoner_name = summoner_info.get('Summoner name')
+        summoner_icon = summoner_info.get('Icon')
+        summoner_level = summoner_info.get('Level')
+        win_rate = summoner_info.get('Win ratio')
+        solo_rank = summoner_info.get('Solo rank')
+        flex_rank = summoner_info.get('Flex rank')
 
-      embed=discord.Embed(color=discord.Color.green())
-      embed.set_author(
-        name="{}".format(summoner_name), 
-        icon_url=summoner_icon
-      )
-      embed.add_field(name="**Level**", value=summoner_level, inline=False)
-      embed.add_field(name="**Win ratio**", value=win_rate, inline=False)
-      embed.add_field(name="**Solo rank**", value=solo_rank, inline=False)
-      embed.add_field(name="**Flex rank**", value=flex_rank, inline=False)
+        embed=discord.Embed(color=discord.Color.green())
+        embed.set_author(
+          name="{}".format(summoner_name), 
+          icon_url=summoner_icon
+        )
+        embed.add_field(name="**Level**", value=summoner_level, inline=False)
+        embed.add_field(name="**Win ratio**", value=win_rate, inline=False)
+        embed.add_field(name="**Solo rank**", value=solo_rank, inline=False)
+        embed.add_field(name="**Flex rank**", value=flex_rank, inline=False)
 
-      await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
+      else:
+        await ctx.send("Sorry, I couldn't find info on {}".format(' '.join(summoner_name)))
+
     else:
-      await ctx.send("Sorry, I couldn't find info on {}".format(' '.join(summoner_name)))
+      await ctx.send("Please give the name of the summoner you would like to have info on.")
 
 
 
