@@ -279,12 +279,16 @@ class RandomCommands(commands.Cog):
   @commands.command()
   async def runes(self, ctx):
     "Displays a runepage with random keystones"
-    await ctx.send(random_runes())
+    runes = random_runes()
+    name = runes.get('name')
+    keystones = runes.get('keystones')
+    await ctx.send("{}: {}".format(name, ', '.join(keystones)))
 
   @commands.command()
   async def shards(self, ctx):
     "Displays random rune shards"
-    await ctx.send(random_shards())
+    shards = random_shards()
+    await ctx.send(', '.join(shards))
 
   @commands.command(name="sum")
   async def summoner_spell(self, ctx):
@@ -294,7 +298,8 @@ class RandomCommands(commands.Cog):
   @commands.command(name="abilities")
   async def summoner_spell(self, ctx):
     "Displays the abilities in random order"
-    await ctx.send(random_ability_order())
+    abilities = random_ability_order()
+    await ctx.send(', '.join(abilities))
 
 
   @commands.command()
