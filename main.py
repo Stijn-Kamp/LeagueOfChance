@@ -131,7 +131,7 @@ def late_game():
   return('Ja' if i < 6 else 'Nee')
 
 # command handling ----------------------------------
-class CommandsHandler(commands.Cog):
+class ErrorHandler(commands.Cog):
   """A cog for global error handling."""
 
   def __init__(self, bot: commands.Bot):
@@ -154,6 +154,12 @@ class CommandsHandler(commands.Cog):
 
       await ctx.send(message, delete_after=5)
       await ctx.message.delete(delay=5)
+
+class RandomCommands(commands.Cog):
+  """A collection of the random functions"""
+
+  def __init__(self, bot: commands.Bot):
+      self.bot = bot
 
   @commands.command()
   async def late(self, ctx):
@@ -253,14 +259,14 @@ class CommandsHandler(commands.Cog):
 
     await ctx.send(embed=embed)
 
+
+
 def setup(bot: commands.Bot):
-  bot.add_cog(CommandsHandler(bot))
-
-
-
+  bot.add_cog(ErrorHandler(bot))
+  bot.add_cog(RandomCommands(bot))
 
 # bot funcions--------------------------------------------
-@bot.event #print that the bot is ready to make sure that it actually logged on
+# @bot.event #print that the bot is ready to make sure that it actually logged on
 async def on_ready():
     print('Logged in as:')
     print(bot.user.name)
