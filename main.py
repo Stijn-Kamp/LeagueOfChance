@@ -300,14 +300,14 @@ class RandomCommands(commands.Cog):
     await ctx.send(random_summoner_spell())
 
   @commands.command(name="abilities")
-  async def summoner_spell(self, ctx):
+  async def summability_order(self, ctx):
     "Displays the abilities in random order"
     abilities = random_ability_order()
     await ctx.send(', '.join(abilities))
 
 
-  @commands.command()
-  async def build(self, ctx):
+  @commands.command(name="random", aliases=['rb'])
+  async def random_build(self, ctx):
     # https://python.plainenglish.io/python-discord-bots-formatting-text-efca0c5dc64a
     # formatting example
     "Generates a random build"
