@@ -92,7 +92,7 @@ ITEMS = [
 "Lord Dominik's Regards",
 "Manamune",
 "Maw of Malmortius",
-"Mejai's Soulstealer",
+#"Mejai's Soulstealer",
 "Mercurial Scimitar",
 "Mikael's Blessing",
 "Morellonomicon",
