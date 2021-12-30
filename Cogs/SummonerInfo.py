@@ -132,20 +132,22 @@ def get_summoner_mastery(summoner_name, server='euw', amount=0):
         item = item.find_all('td')
 
         champion_name = item[0].find('a').text
-        level = item[1].text
+        level = item[1].text        
+        points = item[2].text
         chest = (item[3].get('data-value') == '1')
         last_played = datetime.fromtimestamp(int(item[4].get('data-value')[:-3])).strftime("%d/%m/%Y, %H:%M:%S")
         progress = item[5].get('title')
-        points = int(item[6].get('data-value'))
-        points = points if points < 90000 else 'N/A'
+        next_level = int(item[6].get('data-value'))
+        next_level = next_level if next_level < 90000 else 'N/A'
 
         item = {
             "Champion": champion_name,
             "Level": level,
+            "Points": points,
             "Chest": chest,
             "Last played": last_played,
             "Progress": progress,
-            "Points": points
+            "Next level": next_level
         }
         summoner_mastery.append(item)
   except Exception as e:

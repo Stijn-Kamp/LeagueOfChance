@@ -1,7 +1,7 @@
 ROLES = [
 "Top",
 "Jungle",
-"River", 
+#"River", 
 "Mid",
 "Adc",
 "Support"
@@ -386,4 +386,4 @@ SHARDS = [
   ["Health", "Armor", "Magic resistance"]
 ]
 
-ABILITIES = ['Q', 'W', 'E', 'R']
+ABILITIES = ['Q', 'W', 'E']
