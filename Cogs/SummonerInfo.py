@@ -53,17 +53,22 @@ class SummonerCommands(commands.Cog):
         summoner_info = get_summoner_info(lookup_name)
         mastery = get_summoner_mastery(lookup_name, amount=20)
 
+        if mastery:
+            description = ''
+            for item in mastery:
+                item = "**{:15}** Lvl {} - {}\n".format(item.get('Champion'), item.get('Level'), item.get('Points'))
+                print(item)
+                description += item
+            
+        else:
+            description = "Mastery not found"
+
         if summoner_info:
-            if mastery:
-                mastery = ["{}: {}".format(item.get('Champion'), item.get('Level')) for item in mastery]
-                mastery = '\n'.join(mastery)
-            else:
-                "Mastery not found"
             summoner_name = summoner_info.get('Summoner name')
             summoner_icon = summoner_info.get('Icon')
             embed=discord.Embed(
                 title='Mastery', 
-                description=mastery, 
+                description=description, 
                 color=discord.Color.gold()
                 )
             embed.set_author(
