@@ -1,6 +1,9 @@
 import discord #import all the necessary modules
 from discord.ext import commands
 import random
+import json
+
+from requests.models import requote_uri
 
 if __name__ == '__main__':
     from Constants import ROLES
@@ -10,6 +13,19 @@ else:
 # for champion_counter
 from bs4 import BeautifulSoup
 import requests
+
+
+# Item ids
+PATCH = '11.24.1'
+soup = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/item.json".format(PATCH))
+item_ids = json.loads(soup.text).get('data')
+
+def to_item(id):
+    item = item_ids.get(str(id))
+    if item:
+        item = item.get('name')
+    return item
+
 
 
 class Tips(commands.Cog):
@@ -52,8 +68,9 @@ class Tips(commands.Cog):
         shards = ', '.join(build.get('Shards'))
         sums = ', '.join(build.get('Summoner spells'))
         abilities = ', '.join(build.get('Abilities'))
-        # starter_items = build.get('Items')
-        # items = build.get('Items')
+        starter_items = ', '.join(build.get('Starter items'))
+        items = ', '.join(build.get('Items'))
+        boots = build.get('Boots')
 
         embed=discord.Embed(color=discord.Color.blue())
         embed.set_author(
@@ -68,9 +85,9 @@ class Tips(commands.Cog):
         embed.add_field(name="**Shards**", value=shards, inline=False)
         embed.add_field(name="**Summoner spells**", value=sums, inline=False)
         embed.add_field(name="**Ability order**", value=abilities, inline=False)
-        # embed.add_field(name="**Boots**", value=build.get('Boots'), inline=False)
-        # embed.add_field(name="**Starter items**", value=build.get('Starter items'), inline=False)
-        # embed.add_field(name="**Items**", value=items, inline=False)
+        embed.add_field(name="**Boots**", value=boots, inline=False)
+        embed.add_field(name="**Starter items**", value=starter_items, inline=False)
+        embed.add_field(name="**Items**", value=items, inline=False)
 
         await ctx.send(embed=embed)
 
@@ -119,6 +136,13 @@ def to_shard(string):
     else:
         return None
 
+def url_to_item(url):
+    try:
+        item = str(url).split('item/')[1].split('.')[0]
+        item = to_item(item)
+    except:
+        item = None
+    return item
 
 def champion_counter(champion):
   BASE_URL = "https://lolcounter.com/champions/{}"
@@ -137,7 +161,6 @@ def champion_build(name, role=None, ):
     if str(role).lower() == 'aram':
         BASE_URL = "https://euw.op.gg/aram/{}/statistics/450/build"
         url = BASE_URL.format(name)
-        print(url)
     else:
         BASE_URL = "https://www.op.gg/champion/{}"
         url = BASE_URL.format(name)
@@ -161,13 +184,15 @@ def champion_build(name, role=None, ):
         abilities = [ability.text for ability in abilities]
 
         starter_items = build[3].find_all('img')
-        starter_items = ["https:{}".format(item.get('src')) for item in starter_items]
+        starter_items = [url_to_item(item.get('src')) for item in starter_items]
 
         items = build[5].find_all('img')
-        items = ["https:{}".format(item.get('src')) for item in items]
+        items = [url_to_item(item.get('src')) for item in items]
+        items = [item for item in items if item] # Remove None 
+
         
         boots = build[10].find('img')
-        boots = "https:{}".format(boots.get('src'))
+        boots = url_to_item(boots.get('src'))
 
         if role == None:
             role = soup.find('link').get('href').split('/')[-2]
@@ -191,9 +216,9 @@ def champion_build(name, role=None, ):
             "Summoner spells": summoner_spells,
             "Abilities": abilities,
             "Shards": shards,
-            #"Starter items": starter_items,
-            #"Items": items,
-            #"Boots": boots,
+            "Starter items": starter_items,
+            "Items": items,
+            "Boots": boots,
             "Runes": runes
         }
     except Exception as e:

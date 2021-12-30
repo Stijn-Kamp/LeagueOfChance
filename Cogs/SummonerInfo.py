@@ -4,6 +4,7 @@ from discord.ext import commands
 from bs4 import BeautifulSoup
 import requests
 from datetime import datetime
+
 class SummonerCommands(commands.Cog):
   """A collection of the summoner commands"""
 
