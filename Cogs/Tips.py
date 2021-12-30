@@ -2,7 +2,10 @@ import discord #import all the necessary modules
 from discord.ext import commands
 import random
 
-from Cogs.Constants import ROLES
+if __name__ == '__main__':
+    from Constants import ROLES
+else:
+    from Cogs.Constants import ROLES
 
 # for champion_counter
 from bs4 import BeautifulSoup
@@ -30,8 +33,8 @@ class Tips(commands.Cog):
     # formatting example
     "Generates a random build"
 
-    if champion[-1].capitalize() in ROLES:
-        role = champion[-1]
+    role = champion[-1].capitalize()
+    if role in ROLES or role == 'Aram':
         champion = champion[:-1]
     else:
         role = None
@@ -66,7 +69,7 @@ class Tips(commands.Cog):
         embed.add_field(name="**Summoner spells**", value=sums, inline=False)
         embed.add_field(name="**Ability order**", value=abilities, inline=False)
         # embed.add_field(name="**Boots**", value=build.get('Boots'), inline=False)
-        # embed.add_field(name="**Mythic**", value=build.get('Mythic'), inline=False)
+        # embed.add_field(name="**Starter items**", value=build.get('Starter items'), inline=False)
         # embed.add_field(name="**Items**", value=items, inline=False)
 
         await ctx.send(embed=embed)
@@ -92,9 +95,9 @@ def to_summoners_spell(string):
         return 'Barrier'   
     elif 'SummonerCleanse' in string:
         return 'Cleanse'
-    elif 'SummonerMark' in string:
+    elif 'SummonerSnowball' in string:
         return 'Mark'
-    elif 'SummonerClarity' in string:
+    elif 'SummonerMana' in string:
         return 'Clarity' 
     else:
         return None
@@ -130,11 +133,16 @@ def champion_counter(champion):
     tip = "Sorry, I couldn't find a tip to play against {}".format(champion)
   return tip
 
-def champion_build(name, role=None):
-    BASE_URL = "https://www.op.gg/champion/{}"
-    url = BASE_URL.format(name)
-    if role is not None:
-        url += '/statistics/{}/build'.format(role)
+def champion_build(name, role=None, ):
+    if str(role).lower() == 'aram':
+        BASE_URL = "https://euw.op.gg/aram/{}/statistics/450/build"
+        url = BASE_URL.format(name)
+        print(url)
+    else:
+        BASE_URL = "https://www.op.gg/champion/{}"
+        url = BASE_URL.format(name)
+        if role is not None:
+            url += '/statistics/{}/build'.format(role)
     try:
         headers = {'user-agent': 'LeagueOfChange/1.0.0'}
         page = requests.get(url, headers=headers).text        
@@ -161,7 +169,9 @@ def champion_build(name, role=None):
         boots = build[10].find('img')
         boots = "https:{}".format(boots.get('src'))
 
-        role = soup.find('link').get('href').split('/')[-2].capitalize()
+        if role == None:
+            role = soup.find('link').get('href').split('/')[-2]
+        role = role.capitalize()
 
         pages = 2
         runes = soup.find_all(class_='perk-page')[:pages]
@@ -194,5 +204,5 @@ def champion_build(name, role=None):
     return build
 
 if __name__ == '__main__':
-    build = champion_build('teemo')
-    print(build.get('Role'))
+    build = champion_build('teemo', 'aram')
+    print(build)
