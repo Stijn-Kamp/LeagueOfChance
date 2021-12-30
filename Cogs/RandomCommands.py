@@ -203,4 +203,4 @@ def random_build():
 
 def late_game():
   i = random.randrange(0, 10)
-  return('Ja' if i < 6 else 'Nee')
+  return('Yes' if i < 6 else 'No')
