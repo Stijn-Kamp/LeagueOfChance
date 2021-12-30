@@ -57,7 +57,6 @@ class SummonerCommands(commands.Cog):
             description = ''
             for item in mastery:
                 item = "**{:15}** Lvl {} - {}\n".format(item.get('Champion'), item.get('Level'), item.get('Points'))
-                print(item)
                 description += item
             
         else:
