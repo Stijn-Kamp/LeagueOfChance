@@ -1,13 +1,9 @@
 from typing import Text
 import discord #import all the necessary modules
 from discord.ext import commands
-import os
 import random
 from dotenv import load_dotenv
 
-# for champion_counter
-from bs4 import BeautifulSoup
-import requests
 
 from Cogs.Constants import MYTHICS, CHAMPIONS, BOOTS, ITEMS, ROLES, SUMMONER_SPELLS, RUNES, QUOTES, SHARDS, ABILITIES
 

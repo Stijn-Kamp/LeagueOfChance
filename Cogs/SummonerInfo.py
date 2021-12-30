@@ -3,8 +3,7 @@ import discord #import all the necessary modules
 from discord.ext import commands
 from bs4 import BeautifulSoup
 import requests
-
-
+from datetime import datetime
 class SummonerCommands(commands.Cog):
   """A collection of the summoner commands"""
 
@@ -25,7 +24,10 @@ class SummonerCommands(commands.Cog):
         solo_rank = summoner_info.get('Solo rank')
         flex_rank = summoner_info.get('Flex rank')
 
-        embed=discord.Embed(color=discord.Color.green())
+        embed=discord.Embed(
+            #title='Summoner info',
+            color=discord.Color.green()
+        )
         embed.set_author(
           name="{}".format(summoner_name), 
           icon_url=summoner_icon
@@ -42,7 +44,41 @@ class SummonerCommands(commands.Cog):
     else:
       await ctx.send("Please give the name of the summoner you would like to have info on.")
 
-      # Functions
+  @commands.command(name='mastery')
+  async def summoner_mastery(self, ctx, *summoner_name):
+    # formatting example
+    "Gives the mastery poinst of a summoner"
+    if summoner_name:
+        lookup_name = '+'.join(summoner_name)
+        summoner_info = get_summoner_info(lookup_name)
+        mastery = get_summoner_mastery(lookup_name, amount=20)
+
+        if summoner_info:
+            if mastery:
+                mastery = ["{}: {}".format(item.get('Champion'), item.get('Level')) for item in mastery]
+                mastery = '\n'.join(mastery)
+            else:
+                "Mastery not found"
+            summoner_name = summoner_info.get('Summoner name')
+            summoner_icon = summoner_info.get('Icon')
+            embed=discord.Embed(
+                title='Mastery', 
+                description=mastery, 
+                color=discord.Color.gold()
+                )
+            embed.set_author(
+            name="{}".format(summoner_name), 
+            icon_url=summoner_icon
+            )
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("Sorry, I couldn't find the mastery of {}".format(' '.join(summoner_name)))
+
+    else:
+      await ctx.send("Please give the name of the summoner you would like to have info on.")
+
+
+# Functions
 def get_summoner_info(summoner_name, server='euw'):
   BASE_URL = "https://{}.op.gg/summoner/userName={}"
   URL = BASE_URL.format(server, summoner_name)
@@ -73,3 +109,43 @@ def get_summoner_info(summoner_name, server='euw'):
     print(e)
     summoner_info = None
   return summoner_info
+
+
+def get_summoner_mastery(summoner_name, server='euw', amount=0):
+  BASE_URL = "https://championmastery.gg/summoner?summoner={}&region={}"
+  URL = BASE_URL.format(summoner_name, server)
+  try:
+    headers = {'user-agent': 'LeagueOfChange/1.0.0'}
+    page = requests.get(URL, headers=headers).text
+    soup = BeautifulSoup(page, 'html.parser')
+    mastery = soup.find(class_='well').find('tbody').find_all('tr')
+
+    if amount != 0:
+        mastery = mastery[:amount]
+
+    summoner_mastery = []
+    for item in mastery:
+        item = item.find_all('td')
+
+        champion_name = item[0].find('a').text
+        level = item[1].text
+        chest = (item[3].get('data-value') == '1')
+        last_played = datetime.fromtimestamp(int(item[4].get('data-value')[:-3])).strftime("%d/%m/%Y, %H:%M:%S")
+        progress = item[5].get('title')
+        points = int(item[6].get('data-value'))
+        points = points if points < 90000 else 'N/A'
+
+        item = {
+            "Champion": champion_name,
+            "Level": level,
+            "Chest": chest,
+            "Last played": last_played,
+            "Progress": progress,
+            "Points": points
+        }
+        summoner_mastery.append(item)
+  except Exception as e:
+    print(e)
+    summoner_mastery = None
+  return summoner_mastery
+
