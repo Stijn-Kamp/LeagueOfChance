@@ -44,7 +44,7 @@ class SummonerCommands(commands.Cog):
     else:
       await ctx.send("Please give the name of the summoner you would like to have info on.")
 
-  @commands.command(name='mastery')
+  @commands.command(name='mastery', aliases=['m'])
   async def summoner_mastery(self, ctx, *summoner_name):
     # formatting example
     "Gives the mastery poinst of a summoner"
@@ -83,7 +83,7 @@ class SummonerCommands(commands.Cog):
 
 
 # Functions
-def get_summoner_info(summoner_name, server='euw'):
+def get_summoner_info(summoner_name, server='euw', aliases=['i', 'si']):
   BASE_URL = "https://{}.op.gg/summoner/userName={}"
   URL = BASE_URL.format(server, summoner_name)
   try:
