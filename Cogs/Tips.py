@@ -2,7 +2,7 @@ import discord #import all the necessary modules
 from discord.ext import commands
 import random
 
-from Cogs.RemoteData import get_champion_description, get_champion_image, to_item
+from Cogs.RemoteData import get_champion_description, get_champion_image, to_item, format_name
 from Cogs.Constants import ROLES
 
 
@@ -43,9 +43,10 @@ class Tips(commands.Cog):
 
     if build:
         champion = build.get('Champion')
-        icon = get_champion_image(champion)
+        lookup_name = format_name(champion)
+        icon = get_champion_image(lookup_name)
+        description = get_champion_description(lookup_name)
         url = build.get('Url')
-        description = get_champion_description(champion)
 
         primary = ', '.join(build.get('Runes')[0])
         secondary = ', '.join(build.get('Runes')[1])

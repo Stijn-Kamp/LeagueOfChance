@@ -5,8 +5,8 @@ import random
 from dotenv import load_dotenv
 
 
-from Cogs.Constants import MYTHICS, BOOTS, ITEMS, ROLES, SUMMONER_SPELLS, RUNES, QUOTES, SHARDS, ABILITIES
-from Cogs.RemoteData import get_champion_image, champions, get_champion_description
+from Cogs.Constants import MYTHICS, BOOTS, ITEMS, ROLES, RUNES, QUOTES, SHARDS, ABILITIES
+from Cogs.RemoteData import get_champion_image, champions, get_champion_description, summoner
 
 
 class RandomCommands(commands.Cog):
@@ -43,7 +43,11 @@ class RandomCommands(commands.Cog):
   @commands.command()
   async def champion(self, ctx):
     "Displays a random champion"
-    await ctx.send(random_champion())
+    champion = champions.get(random_champion())
+    if champion:
+      await ctx.send(champion.get('name'))
+    else:
+      await ctx.send("Couldn't generate a champion")
 
   @commands.command()
   async def role(self, ctx):
@@ -83,22 +87,24 @@ class RandomCommands(commands.Cog):
     "Generates a random build"
     PATCH = '11.24.1'
     build = random_build()
-    champion = build.get('Champion')
+    lookup_name = build.get('Champion')
+    champion = champions.get(lookup_name)
+    champion_name = champion.get('name')
     primary = build.get('Primary runes')
     secondary = build.get('Secondary runes')
     shards = ', '.join(build.get('Shards'))
     sums = ', '.join(build.get('Summoner spells'))
     abilities = ', '.join(build.get('Abilities'))
     items = ', '.join(build.get('Items'))
-    icon_url = get_champion_image(champion)
-    description = get_champion_description(champion)
+    icon_url = get_champion_image(lookup_name)
+    description = get_champion_description(lookup_name)
 
     embed=discord.Embed(
         color=discord.Color.blue(),
         description = description
     )
     embed.set_author(
-      name="{}".format(champion), 
+      name="{}".format(champion_name), 
       icon_url=icon_url
     )
 
@@ -135,7 +141,14 @@ def random_role():
   return random.choice(ROLES)
 
 def random_summoner_spell():
-  return random.choice(SUMMONER_SPELLS)
+  spells = list(summoner.keys())
+  summoner_spells = []
+  for spell in spells:
+    if 'CLASSIC' in summoner.get(spell).get('modes'):
+      summoner_spells.append(spell)
+  summoner_spell = random.choice(summoner_spells)
+  summoner_spell = summoner.get(summoner_spell).get('name')
+  return summoner_spell
 
 def random_ability_order():
   abilities = ABILITIES
