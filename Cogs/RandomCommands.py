@@ -5,8 +5,8 @@ import random
 from dotenv import load_dotenv
 
 
-from Cogs.Constants import MYTHICS, CHAMPIONS, BOOTS, ITEMS, ROLES, SUMMONER_SPELLS, RUNES, QUOTES, SHARDS, ABILITIES
-
+from Cogs.Constants import MYTHICS, BOOTS, ITEMS, ROLES, SUMMONER_SPELLS, RUNES, QUOTES, SHARDS, ABILITIES
+from Cogs.RemoteData import get_champion_image, champions, get_champion_description
 
 
 class RandomCommands(commands.Cog):
@@ -90,10 +90,13 @@ class RandomCommands(commands.Cog):
     sums = ', '.join(build.get('Summoner spells'))
     abilities = ', '.join(build.get('Abilities'))
     items = ', '.join(build.get('Items'))
+    icon_url = get_champion_image(champion)
+    description = get_champion_description(champion)
 
-    icon_url = champion.split('&', 1)[0].replace('.', '').replace(' ', '').replace(' ', ' ')
-    icon_url = "http://ddragon.leagueoflegends.com/cdn/{}/img/champion/{}.png".format(PATCH, icon_url)
-    embed=discord.Embed(color=discord.Color.blue())
+    embed=discord.Embed(
+        color=discord.Color.blue(),
+        description = description
+    )
     embed.set_author(
       name="{}".format(champion), 
       icon_url=icon_url
@@ -125,7 +128,8 @@ def random_boots():
   return random.choice(BOOTS)
 
 def random_champion():
-  return random.choice(CHAMPIONS)
+  champion_list = list(champions.keys())
+  return random.choice(champion_list)
 
 def random_role():
   return random.choice(ROLES)

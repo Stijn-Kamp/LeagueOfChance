@@ -1,31 +1,14 @@
 import discord #import all the necessary modules
 from discord.ext import commands
 import random
-import json
 
-from requests.models import requote_uri
+from Cogs.RemoteData import get_champion_description, get_champion_image, to_item
+from Cogs.Constants import ROLES
 
-if __name__ == '__main__':
-    from Constants import ROLES
-else:
-    from Cogs.Constants import ROLES
 
 # for champion_counter
 from bs4 import BeautifulSoup
 import requests
-
-
-# Item ids
-PATCH = '11.24.1'
-soup = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/item.json".format(PATCH))
-item_ids = json.loads(soup.text).get('data')
-
-def to_item(id):
-    item = item_ids.get(str(id))
-    if item:
-        item = item.get('name')
-    return item
-
 
 
 class Tips(commands.Cog):
@@ -47,7 +30,7 @@ class Tips(commands.Cog):
   async def build(self, ctx, *champion):
     # https://python.plainenglish.io/python-discord-bots-formatting-text-efca0c5dc64a
     # formatting example
-    "Generates a random build"
+    "Retrieves the most played build from the internet"
 
     role = champion[-1].capitalize()
     if role in ROLES or role == 'Aram':
@@ -55,13 +38,14 @@ class Tips(commands.Cog):
     else:
         role = None
 
-    champion = ''.join(champion)
-    build = champion_build(champion, role)
+    lookup_name = ''.join(champion)
+    build = champion_build(lookup_name, role)
 
     if build:
         champion = build.get('Champion')
-        icon = build.get('Icon')
+        icon = get_champion_image(champion)
         url = build.get('Url')
+        description = get_champion_description(champion)
 
         primary = ', '.join(build.get('Runes')[0])
         secondary = ', '.join(build.get('Runes')[1])
@@ -72,11 +56,14 @@ class Tips(commands.Cog):
         items = ', '.join(build.get('Items'))
         boots = build.get('Boots')
 
-        embed=discord.Embed(color=discord.Color.blue())
+        embed=discord.Embed(
+            color=discord.Color.blue(),
+            description = description
+        )
         embed.set_author(
         name="{}".format(champion), 
         icon_url=icon,
-        url=url
+        url=url,
         )
 
         embed.add_field(name="**Role**", value=build.get('Role'), inline=False)
@@ -89,7 +76,10 @@ class Tips(commands.Cog):
         embed.add_field(name="**Starter items**", value=starter_items, inline=False)
         embed.add_field(name="**Items**", value=items, inline=False)
 
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed)        
+    else:
+        errorMessage = "Sorry, I couldn't find a build for {}.".format(' '.join(champion))
+        await ctx.send(errorMessage)
 
 
 # Functions
@@ -174,9 +164,6 @@ def champion_build(name, role=None, ):
 
         champion_name = soup.find(class_="champion-stats-header-info__name").text.split(' ')[0]
 
-        champion_icon = soup.find(class_='champion-stats-header-info__image').find('img').get('src')
-        champion_icon = "https:{}".format(champion_icon)
-
         summoner_spells = build[0].find_all('img')
         summoner_spells = [to_summoners_spell(img.get('src')) for img in summoner_spells]
 
@@ -211,7 +198,6 @@ def champion_build(name, role=None, ):
         build = {
             "Url": url,
             "Champion": champion_name,
-            "Icon": champion_icon,
             "Role": role,
             "Summoner spells": summoner_spells,
             "Abilities": abilities,
