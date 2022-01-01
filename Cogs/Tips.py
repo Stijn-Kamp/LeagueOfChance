@@ -18,13 +18,32 @@ class Tips(commands.Cog):
       self.bot = bot
 
   @commands.command()
-  async def counter(self, ctx, *champion):
+  async def counter(self, ctx, *command):
     "Gives a random tip to counter a champion"
-    champion = '-'.join(champion)
-    if champion:
-      await ctx.send(champion_counter(champion))
+    command = list(command)
+    
+    
+    # Show all tips, even badly rated tips
+    show_all = True
+    if '-a' in command:
+        command.remove('-a')
+    elif '--show_all' in command:
+        command.remove('--show_all')
     else:
-      await ctx.send("Please give the name of the champion you would like to counter.")
+        show_all = False
+
+
+    champion = '-'.join(command)
+    if champion:
+        tips = champion_counter(champion, show_all)
+        if tips:
+            reply = random.choice(tips)
+        else:
+            reply = "Sorry, I could not find a tip to play against {}.".format(champion)
+    else:
+      reply = "Please give the name of the champion you would like to counter."
+
+    await ctx.send(reply)
 
   @commands.command(name="build", aliases=['b'])
   async def build(self, ctx, *champion):
@@ -135,18 +154,18 @@ def url_to_item(url):
         item = None
     return item
 
-def champion_counter(champion):
-  BASE_URL = "https://lolcounter.com/champions/{}"
+def champion_counter(champion, show_all=False):
+  BASE_URL = "https://lolcounter.com/tips/{}/general" if show_all else "https://lolcounter.com/champions/{}"
   URL = BASE_URL.format(champion.replace("'",""))
   try:
     page = requests.get(URL).text
     soup = BeautifulSoup(page, 'html.parser')
     tips = soup.find_all("span", class_="_tip")
-    tip = random.choice(tips).text
+    tips = [tip.text for tip in tips]
   except Exception as e:
     print(e)
-    tip = "Sorry, I couldn't find a tip to play against {}".format(champion)
-  return tip
+    tips = []
+  return tips
 
 def champion_build(name, role=None, ):
     if str(role).lower() == 'aram':

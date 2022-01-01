@@ -1,2 +1,6 @@
-from Cogs.RemoteData import format_name
-print(format_name("Master Yi"))
+from Cogs.Tips import champion_counter
+
+
+tips = champion_counter('Katarina', show_all=True)
+
+print(tips)

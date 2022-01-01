@@ -45,39 +45,52 @@ class SummonerCommands(commands.Cog):
     else:
       await ctx.send("Please give the name of the summoner you would like to have info on.")
 
-  @commands.command(name='mastery', aliases=['m'])
-  async def summoner_mastery(self, ctx, *summoner_name):
+  @commands.command(name='mastery', aliases=['sm', 'm'])
+  async def summoner_mastery(self, ctx, *command):
     # formatting example
     "Gives the mastery poinst of a summoner"
-    if summoner_name:
-        lookup_name = '+'.join(summoner_name)
-        summoner_info = get_summoner_info(lookup_name)
-        mastery = get_summoner_mastery(lookup_name, amount=20)
+    if command:
+      amount=20
+      command = list(command)
+      # Remove max lookup amount
+      if '--no_limit' in command:
+        command.remove('--no_limit')
+        amount = 0
 
-        if mastery:
-            description = ''
-            for item in mastery:
-                item = "**{:15}** Lvl {} - {}\n".format(item.get('Champion'), item.get('Level'), item.get('Points'))
-                description += item
-            
-        else:
-            description = "Mastery not found"
+      try:
+        level = int(command[0])
+        command = command[1:]
+      except: 
+        command = command
+        level = 0
+      lookup_name = '+'.join(command)
+      summoner_info = get_summoner_info(lookup_name)
+      mastery = get_summoner_mastery(lookup_name, level=level, amount=amount)
+      
+      if mastery:
+        description = ''
+        for item in mastery:
+          item = "**{}** Lvl {} - {}\n".format(item.get('Champion'), item.get('Level'), item.get('Points'))
+          description += item
+          
+      else:
+        description = "Mastery not found"
 
-        if summoner_info:
-            summoner_name = summoner_info.get('Summoner name')
-            summoner_icon = summoner_info.get('Icon')
-            embed=discord.Embed(
-                title='Mastery', 
-                description=description, 
-                color=discord.Color.gold()
-                )
-            embed.set_author(
-            name="{}".format(summoner_name), 
-            icon_url=summoner_icon
-            )
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send("Sorry, I couldn't find the mastery of {}".format(' '.join(summoner_name)))
+      if summoner_info:
+        summoner_name = summoner_info.get('Summoner name')
+        summoner_icon = summoner_info.get('Icon')
+        embed=discord.Embed(
+          title='Mastery', 
+          description=description, 
+          color=discord.Color.gold()
+          )
+        embed.set_author(
+        name="{}".format(summoner_name), 
+        icon_url=summoner_icon
+        )
+        await ctx.send(embed=embed)
+      else:
+        await ctx.send("Sorry, I couldn't find the mastery of {}".format(' '.join(summoner_name)))
 
     else:
       await ctx.send("Please give the name of the summoner you would like to have info on.")
@@ -116,7 +129,7 @@ def get_summoner_info(summoner_name, server='euw', aliases=['i', 'si']):
   return summoner_info
 
 
-def get_summoner_mastery(summoner_name, server='euw', amount=0):
+def get_summoner_mastery(summoner_name, level=0, server='euw', amount=0):
   BASE_URL = "https://championmastery.gg/summoner?summoner={}&region={}"
   URL = BASE_URL.format(summoner_name, server)
   try:
@@ -125,15 +138,16 @@ def get_summoner_mastery(summoner_name, server='euw', amount=0):
     soup = BeautifulSoup(page, 'html.parser')
     mastery = soup.find(class_='well').find('tbody').find_all('tr')
 
-    if amount != 0:
-        mastery = mastery[:amount]
-
     summoner_mastery = []
     for item in mastery:
         item = item.find_all('td')
 
+        # Throw out champions from the wrong level
+        champion_level = int(item[1].text)  
+        if level > 0 and level and level != champion_level:
+          continue
+
         champion_name = item[0].find('a').text
-        level = item[1].text        
         points = item[2].text
         chest = (item[3].get('data-value') == '1')
         last_played = datetime.fromtimestamp(int(item[4].get('data-value')[:-3])).strftime("%d/%m/%Y, %H:%M:%S")
@@ -143,7 +157,7 @@ def get_summoner_mastery(summoner_name, server='euw', amount=0):
 
         item = {
             "Champion": champion_name,
-            "Level": level,
+            "Level": champion_level,
             "Points": points,
             "Chest": chest,
             "Last played": last_played,
@@ -151,6 +165,12 @@ def get_summoner_mastery(summoner_name, server='euw', amount=0):
             "Next level": next_level
         }
         summoner_mastery.append(item)
+
+        # Stop when the right amount of champions is reached
+        amount-=1
+        if amount == 0:
+          break
+
   except Exception as e:
     print(e)
     summoner_mastery = None
