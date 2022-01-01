@@ -90,7 +90,7 @@ class SummonerCommands(commands.Cog):
         )
         await ctx.send(embed=embed)
       else:
-        await ctx.send("Sorry, I couldn't find the mastery of {}".format(' '.join(summoner_name)))
+        await ctx.send("Sorry, I couldn't find the mastery of {}".format(' '.join(lookup_name)))
 
     else:
       await ctx.send("Please give the name of the summoner you would like to have info on.")
