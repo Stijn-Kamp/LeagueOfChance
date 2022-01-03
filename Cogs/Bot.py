@@ -1,9 +1,11 @@
+from inspect import Traceback
 from typing import Text
 import discord #import all the necessary modules
 from discord.ext import commands
 
 from Cogs.RandomCommands import RandomCommands, random_quote, late_game
 from Cogs.SummonerInfo import SummonerCommands
+from Cogs.Teams import Teams
 from Cogs.Tips import Tips
 
 # command handling ----------------------------------
@@ -25,6 +27,7 @@ class ErrorHandler(commands.Cog):
       elif isinstance(error, commands.UserInputError):
           message = "Something about your input was wrong, please check your input and try again!"
       else:
+          print(Traceback.format_exc())
           print(error)
           message = "Oh no! Something went wrong while running the command!"
 
@@ -41,11 +44,11 @@ def create_bot():
     command_prefix='$',
     help_command= help_command
     ) #define command decorator
-    setup = False
 
     bot.add_cog(ErrorHandler(bot))
     bot.add_cog(RandomCommands(bot))
     bot.add_cog(SummonerCommands(bot))
+    bot.add_cog(Teams(bot))
     bot.add_cog(Tips(bot))
 
     return bot
@@ -76,7 +79,7 @@ class DiscordBot():
         if mention == message.content:
             await message.channel.send(random_quote())
 
-        if 'late' in message.content.lower().split(' '):
+        if 'late' in message.content.lower().replace('?', '').split(' '):
             await message.channel.send(late_game())
         
         await DiscordBot.bot.process_commands(message)

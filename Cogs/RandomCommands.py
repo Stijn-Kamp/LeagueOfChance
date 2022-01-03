@@ -85,40 +85,46 @@ class RandomCommands(commands.Cog):
     # https://python.plainenglish.io/python-discord-bots-formatting-text-efca0c5dc64a
     # formatting example
     "Generates a random build"
-    PATCH = '11.24.1'
     build = random_build()
-    lookup_name = build.get('Champion')
-    champion = champions.get(lookup_name)
-    champion_name = champion.get('name')
-    primary = build.get('Primary runes')
-    secondary = build.get('Secondary runes')
-    shards = ', '.join(build.get('Shards'))
-    sums = ', '.join(build.get('Summoner spells'))
-    abilities = ', '.join(build.get('Abilities'))
-    items = ', '.join(build.get('Items'))
-    icon_url = get_champion_image(lookup_name)
-    description = get_champion_description(lookup_name)
-
-    embed=discord.Embed(
-        color=discord.Color.blue(),
-        description = description
-    )
-    embed.set_author(
-      name="{}".format(champion_name), 
-      icon_url=icon_url
-    )
-
-    embed.add_field(name="**Role**", value=build.get('Role'), inline=False)
-    embed.add_field(name="**Primary runes - {}**".format(primary.get('name')), value=', '.join(primary.get('keystones')), inline=False)
-    embed.add_field(name="**Secondary runes - {}**".format(secondary.get('name')), value=', '.join(secondary.get('keystones')), inline=False)
-    embed.add_field(name="**Shards**", value=shards, inline=False)
-    embed.add_field(name="**Summoner spells**", value=sums, inline=False)
-    embed.add_field(name="**Ability order**", value=abilities, inline=False)
-    embed.add_field(name="**Boots**", value=build.get('Boots'), inline=False)
-    embed.add_field(name="**Mythic**", value=build.get('Mythic'), inline=False)
-    embed.add_field(name="**Items**", value=items, inline=False)
+    embed = embed_build(build)
 
     await ctx.send(embed=embed)
+
+def embed_build(build):
+  PATCH = '11.24.1'
+  lookup_name = build.get('Champion')
+  champion = champions.get(lookup_name)
+  champion_name = champion.get('name')
+  primary = build.get('Primary runes')
+  secondary = build.get('Secondary runes')
+  shards = ', '.join(build.get('Shards'))
+  sums = ', '.join(build.get('Summoner spells'))
+  abilities = ', '.join(build.get('Abilities'))
+  items = ', '.join(build.get('Items'))
+  icon_url = get_champion_image(lookup_name)
+  description = get_champion_description(lookup_name)
+
+  embed=discord.Embed(
+      color=discord.Color.blue(),
+      description = description
+  )
+  embed.set_author(
+    name="{}".format(champion_name), 
+    icon_url=icon_url
+  )
+
+  embed.add_field(name="**Role**", value=build.get('Role'), inline=False)
+  embed.add_field(name="**Primary runes - {}**".format(primary.get('name')), value=', '.join(primary.get('keystones')), inline=False)
+  embed.add_field(name="**Secondary runes - {}**".format(secondary.get('name')), value=', '.join(secondary.get('keystones')), inline=False)
+  embed.add_field(name="**Shards**", value=shards, inline=False)
+  embed.add_field(name="**Summoner spells**", value=sums, inline=False)
+  embed.add_field(name="**Ability order**", value=abilities, inline=False)
+  embed.add_field(name="**Boots**", value=build.get('Boots'), inline=False)
+  embed.add_field(name="**Mythic**", value=build.get('Mythic'), inline=False)
+  embed.add_field(name="**Items**", value=items, inline=False)
+  
+  return embed
+
 
 # Functions
 def random_quote():
@@ -137,8 +143,19 @@ def random_champion():
   champion_list = list(champions.keys())
   return random.choice(champion_list)
 
+def random_champion_list():
+  champion_list = list(champions.keys())
+  random.shuffle(champion_list)
+  return champion_list
+
 def random_role():
   return random.choice(ROLES)
+  
+def random_role_list():
+  role_list = ROLES 
+  random.shuffle(role_list)
+  return role_list
+
 
 def random_summoner_spell():
   spells = list(summoner.keys())
