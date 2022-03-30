@@ -176,6 +176,8 @@ def champion_build(name, role=None, ):
         url = BASE_URL.format(name)
         if role is not None:
             url += '/statistics/{}/build'.format(role)
+
+        print(url)
     try:
         headers = {'user-agent': 'LeagueOfChange/1.0.0'}
         page = requests.get(url, headers=headers).text        
@@ -228,6 +230,7 @@ def champion_build(name, role=None, ):
             "Runes": runes
         }
     except Exception as e:
+        print(e)
         build = None
     if role is not None:
         url += "/statistics/{}/build".format(role)

@@ -1,6 +1,7 @@
-from Cogs.Tips import champion_counter
+from Cogs.SummonerInfo import *
+# for champion_counter
+from bs4 import BeautifulSoup
+import requests
 
-
-tips = champion_counter('Katarina', show_all=True)
-
-print(tips)
+d = get_summoner_mastery('stijnkamp')
+print(d)

@@ -63,7 +63,8 @@ class SummonerCommands(commands.Cog):
       except: 
         command = command
         level = 0
-      lookup_name = '+'.join(command)
+      summoner_name = ''.join(command)
+      lookup_name = ' '.join(command)
       summoner_info = get_summoner_info(lookup_name)
       mastery = get_summoner_mastery(lookup_name, level=level, amount=amount)
       
@@ -90,7 +91,7 @@ class SummonerCommands(commands.Cog):
         )
         await ctx.send(embed=embed)
       else:
-        await ctx.send("Sorry, I couldn't find the mastery of {}".format(' '.join(lookup_name)))
+        await ctx.send("Sorry, I couldn't find the mastery of {}".format(' '.join(summoner_name)))
 
     else:
       await ctx.send("Please give the name of the summoner you would like to have info on.")
@@ -104,16 +105,27 @@ def get_summoner_info(summoner_name, server='euw', aliases=['i', 'si']):
     headers = {'user-agent': 'LeagueOfChange/1.0.0'}
     page = requests.get(URL, headers=headers).text
     soup = BeautifulSoup(page, 'html.parser')
-    summoner_name = soup.find(class_='Name')
+    summoner_name = soup.find(class_='name')
     if(summoner_name is None):
       return None
     else: 
       summoner_name = summoner_name.text
-    icon = 'https:' + soup.find(class_='ProfileImage')['src']
-    level = soup.find(class_='Level').text
-    win_ratio = soup.find_all(class_='WinRatioGraph')[-1].find(class_='Text').text
-    solo_rank = soup.find(class_='TierRank').text.replace('\n','').replace('\t','')
-    flex_rank = soup.find(class_='sub-tier__rank-tier').text.replace('\n','').replace('\t','')
+    icon = soup.find(class_='profile-icon').find('img')
+    icon = icon['src'] if icon else icon
+    level = soup.find(class_='level').text
+
+    win_ratio = soup.find(class_='summary')
+    win_ratio = win_ratio[1].find(class_='text').text if win_ratio else None
+
+    ranks = soup.find_all(class_='tier-rank')
+    if len(ranks) >= 1:
+      solo_rank = ranks[0].text.replace('\n','').replace('\t','')
+    else:
+      solo_rank = 'Unranked'
+    if len(ranks) >= 2:
+      flex_rank = ranks[1].text.replace('\n','').replace('\t','')
+    else:
+      flex_rank = 'Unranked'
     summoner_info = {
       'Summoner name': summoner_name,
       'Icon': icon,
@@ -123,7 +135,7 @@ def get_summoner_info(summoner_name, server='euw', aliases=['i', 'si']):
       'Flex rank': flex_rank
     }
     return summoner_info
-  except Exception as e:
+  except SyntaxError as e:
     print(e)
     summoner_info = None
   return summoner_info

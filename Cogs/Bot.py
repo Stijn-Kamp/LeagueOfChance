@@ -1,4 +1,6 @@
-from inspect import Traceback
+import traceback
+import sys
+
 from typing import Text
 import discord #import all the necessary modules
 from discord.ext import commands
@@ -27,9 +29,9 @@ class ErrorHandler(commands.Cog):
       elif isinstance(error, commands.UserInputError):
           message = "Something about your input was wrong, please check your input and try again!"
       else:
-          print(Traceback.format_exc())
-          print(error)
-          message = "Oh no! Something went wrong while running the command!"
+        traceback.print_exc(file=sys.stdout)
+        print(error)
+        message = "Oh no! Something went wrong while running the command!"
 
       await ctx.send(message, delete_after=5)
       await ctx.message.delete(delay=5)
