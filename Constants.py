@@ -324,7 +324,7 @@ QUOTES = [
   "Teach them to fear us",
   "Cut them from this world.",
   "Justice, will be served.",
-  "Who want's the piece of the champ.",
+  "Who want's a piece of the champ.",
   "House, always wins.",
   "Hut, two, three, four.",
   "Come on, does this look dangerous to you.",
@@ -344,6 +344,8 @@ QUOTES = [
   "You hou hou and a bottle of, RUM!",
   "This will be a slaughter.",
   "I am the blade in the darkness.",
+  "You know what? We might die here. Let's make sure we go down swinging.",
+  "Grandma said 'Never back down from a fight.' Bless that woman.",
   # found on reddit
   "The darker the night, the brighter the stars.",
   "Me, mad? Ahaha...quite likely",
