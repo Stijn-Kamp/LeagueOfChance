@@ -9,6 +9,7 @@ from Cogs.RandomCommands import RandomCommands, random_quote, late_game
 from Cogs.SummonerInfo import SummonerCommands
 from Cogs.Teams import Teams
 from Cogs.Tips import Tips
+from Cogs.News import News
 
 # command handling ----------------------------------
 class ErrorHandler(commands.Cog):
@@ -52,6 +53,8 @@ def create_bot():
     bot.add_cog(SummonerCommands(bot))
     bot.add_cog(Teams(bot))
     bot.add_cog(Tips(bot))
+    bot.add_cog(News(bot))
+
 
     return bot
 

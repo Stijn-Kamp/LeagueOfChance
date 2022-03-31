@@ -1,4 +1,3 @@
-from typing import Text
 import discord #import all the necessary modules
 from discord.ext import commands
 from bs4 import BeautifulSoup
