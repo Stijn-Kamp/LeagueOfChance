@@ -1,7 +1,7 @@
-from Cogs.SummonerInfo import *
+from Cogs.Tips import *
 # for champion_counter
 from bs4 import BeautifulSoup
 import requests
 
-d = get_summoner_mastery('stijnkamp')
+d = champion_build('ashe')
 print(d)

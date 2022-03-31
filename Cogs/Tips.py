@@ -67,8 +67,9 @@ class Tips(commands.Cog):
         description = get_champion_description(lookup_name)
         url = build.get('Url')
 
-        primary = ', '.join(build.get('Runes')[0])
-        secondary = ', '.join(build.get('Runes')[1])
+        runes = build.get('Runes')
+        primary = ', '.join(runes[0]) if runes else None
+        secondary = ', '.join(runes[1]) if runes else None
         shards = ', '.join(build.get('Shards'))
         sums = ', '.join(build.get('Summoner spells'))
         abilities = ', '.join(build.get('Abilities'))
@@ -182,41 +183,67 @@ def champion_build(name, role=None, ):
         headers = {'user-agent': 'LeagueOfChange/1.0.0'}
         page = requests.get(url, headers=headers).text        
         soup = BeautifulSoup(page, 'html.parser')
-        build = soup.find_all(class_='champion-stats__list')
-
-        champion_name = soup.find(class_="champion-stats-header-info__name").text.split(' ')[0]
-
-        summoner_spells = build[0].find_all('img')
-        summoner_spells = [to_summoners_spell(img.get('src')) for img in summoner_spells]
-
-        abilities = build[2].find_all('span')
-        abilities = [ability.text for ability in abilities]
-
-        starter_items = build[3].find_all('img')
-        starter_items = [url_to_item(item.get('src')) for item in starter_items]
-
-        items = build[5].find_all('img')
-        items = [url_to_item(item.get('src')) for item in items]
-        items = [item for item in items if item] # Remove None 
-
+        build = soup.find_all('ul')
+        if build is None or len(build) < 12:
+            return None
         
-        boots = build[10].find('img')
-        boots = url_to_item(boots.get('src'))
+        champion_name = soup.find(class_="name")
+        champion_name = champion_name.text.split(' ')[0] if champion_name else None
+
+        summoner_spells = build[2]
+        summoner_spells = summoner_spells.find_all('img') if summoner_spells else []
+        summoner_spells = [img.get('alt') for img in summoner_spells] if summoner_spells else None
+
+        abilities = build[4].find_all('span')
+        abilities = [ability.text for ability in abilities] if abilities else None
+
+        starter_items = build[5].find_all('img')
+        starter_items = [item.get('alt') for item in starter_items] if starter_items else None
+
+        items = build[7].find_all('img')
+        items = [item.get('alt') for item in items] if items else []
+        items = [item for item in items if item != 'Right Arrow'] # Remove None 
+        
+        boots = build[12].find('img')
+        boots = url_to_item(boots.get('src')) if boots else None
 
         if role == None:
             role = soup.find('link').get('href').split('/')[-2]
-        role = role.capitalize()
+        role = role.capitalize() if role else None
 
-        pages = 2
-        runes = soup.find_all(class_='perk-page')[:pages]
+        rune_page = soup.find(class_='rune_box')
+        rune_page = rune_page.find_all('div', recursive=False) if rune_page else []
+        rune_page = [item for item in rune_page if 'divider' not in str(item)] # remove the dividers
 
-        for i in range(pages):
-            runes[i] = runes[i].find_all(class_='perk-page__item--active')
-            runes[i] = [rune.find('img').get('alt') for rune in runes[i]]
+        runes = [[]]*2
+
+        if rune_page:
+            #Loop through each runepage
+            for i in range(len(runes)):
+                # divide all the rows
+                rows = rune_page[i].find_all(class_='row')[1:]
+                for j in range(len(rows)):      # loop through rows
+                    row = rows[j].find_all('img')  
+                    for img in row:
+                        if 'grayscale' not in str(img): # Check the opacity of the image to see if shard is active or not
+                            rune = img.get('alt')
+                            runes[i].append(rune)
+                            break
         
-        shards = soup.find(class_='fragment-page').find_all(class_='active')
-        shards = [to_shard(shard.get('src')) for shard in shards]
+        runes = [runes[0][:4], runes[1][4:]] # QUICK FIX, NEED TO BE REMOVED LATER
 
+        if len(rune_page) >= 3:
+            shard_page = rune_page[2]
+            rows = shard_page.find_all(class_='row') if shard_page else []
+            shards = []
+            for i in range(len(rows)):
+                row = rows[i].find_all('div')
+                for item in row:
+                    img = item.find('img')
+                    if '0.5' not in str(img): # Check the opacity of the image to see if shard is active or not
+                        shard = to_shard(img.get('src'))
+                        shards.append(shard)
+                        break
         build = {
             "Url": url,
             "Champion": champion_name,
@@ -229,7 +256,7 @@ def champion_build(name, role=None, ):
             "Boots": boots,
             "Runes": runes
         }
-    except Exception as e:
+    except SyntaxError as e:
         print(e)
         build = None
     if role is not None:
