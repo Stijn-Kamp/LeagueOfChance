@@ -63,7 +63,7 @@ class SummonerCommands(commands.Cog):
       except: 
         command = command
         level = 0
-      summoner_name = ''.join(command)
+      summoner_name = command
       lookup_name = ' '.join(command)
       summoner_info = get_summoner_info(lookup_name)
       mastery = get_summoner_mastery(lookup_name, level=level, amount=amount)
