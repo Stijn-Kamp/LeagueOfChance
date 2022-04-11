@@ -1,3 +1,4 @@
+from cgitb import lookup
 import discord #import all the necessary modules
 from discord.ext import commands
 import random
@@ -50,19 +51,18 @@ class Tips(commands.Cog):
     # https://python.plainenglish.io/python-discord-bots-formatting-text-efca0c5dc64a
     # formatting example
     "Retrieves the most played build from the internet"
-
     role = champion[-1].capitalize()
     if role in ROLES or role == 'Aram':
         champion = champion[:-1]
     else:
         role = None
-
     lookup_name = ''.join(champion)
     build = champion_build(lookup_name, role)
 
     if build:
         champion = build.get('Champion')
         lookup_name = format_name(champion)
+
         icon = get_champion_image(lookup_name)
         description = get_champion_description(lookup_name)
         url = build.get('Url')
@@ -188,7 +188,7 @@ def champion_build(name, role=None, ):
             return None
         
         champion_name = soup.find(class_="name")
-        champion_name = champion_name.text.split(' ')[0] if champion_name else None
+        champion_name = ' '.join(champion_name.text.split(' ')) if champion_name else None
 
         summoner_spells = build[2]
         summoner_spells = summoner_spells.find_all('img') if summoner_spells else []
