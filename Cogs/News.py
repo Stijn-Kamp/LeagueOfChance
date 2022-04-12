@@ -1,9 +1,22 @@
-from unicodedata import name
+from sre_parse import CATEGORIES
+from unicodedata import category, name
 import discord #import all the necessary modules
 from discord.ext import commands
 from bs4 import BeautifulSoup
 import requests
 from datetime import datetime
+
+CATEGORIES = [
+    'community',
+    'dev',
+    'esports',
+    'game-updates',
+    'lore',
+    'media',
+    'merch',
+    'riot-games',
+]
+
 
 class News(commands.Cog):
   """A collection of the summoner commands"""
@@ -11,40 +24,58 @@ class News(commands.Cog):
   def __init__(self, bot: commands.Bot):
       self.bot = bot
 
+  @commands.command(name='categories')
+  async def list_categories(self, ctx):
+    "Lists the available categories"
+    await ctx.send(', '.join(CATEGORIES))
+
 
   @commands.command(name='news')
-  async def news(self, ctx):
+  async def news(self, ctx, *command):
     # formatting example
-    "Retrieves League of legens news"
-    articles = get_news()
+    "Retrieves League of legends news"
+    category = None
+
+    for s in command:
+        if s.startswith('--category'):
+            category = s.split('=')[-1]
+            
+
+    articles = get_news(category)
 
     for article in articles:
         author = article.get('Author')
         date_time = article.get('Time')
         date_time = date_time.strftime('%d %B %Y')
         footer = date_time
+        article_description=article.get('Description')
+        article_description = article_description if article_description else discord.Embed.Empty
         if author:
             footer = "{} - {}".format(author, footer)
+            
         embed=discord.Embed(
             title=article.get('Title'), 
-            description=article.get('Description'),
             url=article.get('Url'),
-            color=discord.Color.purple()
+            color=discord.Color.purple(),
+            description=article_description
             )
         embed.set_thumbnail(url=article.get('Image'))
         embed.set_footer(text=footer)
         embed.set_author(name=article.get('Category'))
         await ctx.send(embed=embed)
     
-def get_news():
+def get_news(category = None):
     BASE_URL = 'https://www.leagueoflegends.com'
     NEWS_LOCATION = '/en-us/news/'
     URL = BASE_URL+NEWS_LOCATION
+
+    if category:
+        URL = f'{URL}/{category}'
     headers = {'user-agent': 'LeagueOfChange/1.0.0'}
     page = requests.get(URL, headers=headers)
     page.encoding = page.apparent_encoding
     soup = BeautifulSoup(page.text, 'html.parser')
-
+    
     articles_soup = soup.find_all(class_='style__Wrapper-sc-1h41bzo-0')
 
     articles = []
@@ -79,6 +110,6 @@ def get_news():
     return articles
 
 if __name__ == '__main__': 
-    news = (get_news())
+    news = (get_news(CATEGORIES[7]))
     for new in news:
         print(new)
