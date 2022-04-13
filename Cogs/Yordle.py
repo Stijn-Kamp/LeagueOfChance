@@ -1,8 +1,8 @@
-from typing import Text
 from discord.ext import commands
 import discord
-from bs4 import BeautifulSoup
-import requests
+from time import time
+from math import floor
+from Cogs.YordleWords import CHAMPIONS, ABILITIES
 
 class Yordle(commands.Cog):
   """Yordle commands"""
@@ -18,33 +18,49 @@ class Yordle(commands.Cog):
     yellow = ":yellow_square:"
     black = ":black_square:"
 
-    champion_round = ''.join(7*green)
-    ability_round = ''.join(7*green)
+    URL = 'https://yordle.pages.dev/'
+    IMAGE_LOCATION = "/static/media/thelogogif.fdcac7dbc86950549bc3.gif"
+    image_url = "{}/{}".format(URL, IMAGE_LOCATION)
+
+    champion_round = f'||{get_word_of_day(CHAMPIONS)}||'
+    ability_round = f'||{get_word_of_day(ABILITIES)}||'
 
     embed=discord.Embed(
         title='Yorlde', 
-        url='https://yordle.pages.dev/',
+        url= URL,
         color=discord.Color.green()
         )
+    embed.set_thumbnail(url=image_url)
     embed.add_field(name="**Champion round**", value=champion_round, inline=False)
-    embed.add_field(name="**Ability round**", value=ability_round, inline=False)
+    embed.add_field(name="**Champion round**", value=ability_round, inline=False)
 
     await ctx.send(embed=embed)
     
 
-def get_letter_amount():
-  URL = "https://yordle.pages.dev/"
+def get_index():
+  # export const getWordOfDay = () => {
+  # // January 1, 2022 Game Epoch
+  # const epochMs = new Date(2022, 0).valueOf()
+  # const now = Date.now()
+  # const msInDay = 86400000
+  # const index = Math.floor((now - epochMs) / msInDay)
+  # const nextday = (index + 1) * msInDay + epochMs
 
-  try:
-    page = requests.get(URL).text
-    soup = BeautifulSoup(page, 'html.parser')
-    letters = soup.find_all("div")
-    print(soup)
-    #letters = len(letters)
-  except Exception as e:
-    print(e)
-    letters = 0
-  return letters
+  # January 1, 2022 Game Epoch
+  epochMs = 1640991600000
+  now = floor(time()*1000)
+  msInDay = 86400000
+  index = floor((now - epochMs) / msInDay)
+  nextday = (index + 1) * msInDay + epochMs
+  return index
+
+def get_word_of_day(WORDS):
+  index = get_index()
+  word = WORDS[index % len(WORDS)]
+  return word
+
+
 
 if __name__ == '__main__':
-  print(get_letter_amount())
+  print(get_word_of_day(CHAMPIONS))
+  print(get_word_of_day(ABILITIES))
