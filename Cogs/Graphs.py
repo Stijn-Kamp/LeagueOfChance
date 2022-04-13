@@ -38,12 +38,13 @@ class Graphs(commands.Cog):
   async def create_mastery_graph(self, ctx, *summoner_name):
     if summoner_name:
         summoner_name = ' '.join(summoner_name)
-    graph = create_mastery_graph(summoner_name)
-    if graph:
-        await ctx.send(file=discord.File(graph))
-        os.remove(graph)
-    else:
-        await ctx.send('Failed to generate graph.')
+    async with ctx.typing():
+        graph = create_mastery_graph(summoner_name)
+        if graph:
+            await ctx.send(file=discord.File(graph))
+            os.remove(graph)
+        else:
+            await ctx.send('Failed to generate graph.')
 
 def create_mastery_graph(summoner_name):
     mastery = get_summoner_mastery(summoner_name)

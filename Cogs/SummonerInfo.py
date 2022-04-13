@@ -14,86 +14,88 @@ class SummonerCommands(commands.Cog):
   async def summoner_info(self, ctx, *summoner_name):
     # formatting example
     "Gives information on a summoner"
-    if summoner_name:
-      summoner_info = get_summoner_info('+'.join(summoner_name))
-      if summoner_info:
-        summoner_name = summoner_info.get('Summoner name')
-        summoner_icon = summoner_info.get('Icon')
-        summoner_level = summoner_info.get('Level')
-        win_rate = summoner_info.get('Win ratio')
-        solo_rank = summoner_info.get('Solo rank')
-        flex_rank = summoner_info.get('Flex rank')
+    async with ctx.typing():
+      if summoner_name:
+        summoner_info = get_summoner_info('+'.join(summoner_name))
+        if summoner_info:
+          summoner_name = summoner_info.get('Summoner name')
+          summoner_icon = summoner_info.get('Icon')
+          summoner_level = summoner_info.get('Level')
+          win_rate = summoner_info.get('Win ratio')
+          solo_rank = summoner_info.get('Solo rank')
+          flex_rank = summoner_info.get('Flex rank')
 
-        embed=discord.Embed(
-            #title='Summoner info',
-            color=discord.Color.green()
-        )
-        embed.set_author(
-          name="{}".format(summoner_name), 
-          icon_url=summoner_icon
-        )
-        embed.add_field(name="**Level**", value=summoner_level, inline=False)
-        embed.add_field(name="**Win ratio**", value=win_rate, inline=False)
-        embed.add_field(name="**Solo rank**", value=solo_rank, inline=False)
-        embed.add_field(name="**Flex rank**", value=flex_rank, inline=False)
+          embed=discord.Embed(
+              #title='Summoner info',
+              color=discord.Color.green()
+          )
+          embed.set_author(
+            name="{}".format(summoner_name), 
+            icon_url=summoner_icon
+          )
+          embed.add_field(name="**Level**", value=summoner_level, inline=False)
+          embed.add_field(name="**Win ratio**", value=win_rate, inline=False)
+          embed.add_field(name="**Solo rank**", value=solo_rank, inline=False)
+          embed.add_field(name="**Flex rank**", value=flex_rank, inline=False)
 
-        await ctx.send(embed=embed)
+          await ctx.send(embed=embed)
+        else:
+          await ctx.send("Sorry, I couldn't find info on {}".format(' '.join(summoner_name)))
+
       else:
-        await ctx.send("Sorry, I couldn't find info on {}".format(' '.join(summoner_name)))
-
-    else:
-      await ctx.send("Please give the name of the summoner you would like to have info on.")
+        await ctx.send("Please give the name of the summoner you would like to have info on.")
 
   @commands.command(name='mastery', aliases=['sm', 'm'])
   async def summoner_mastery(self, ctx, *command):
     # formatting example
     "Gives the mastery poinst of a summoner"
-    if command:
-      amount=20
-      command = list(command)
-      # Remove max lookup amount
-      if '--no_limit' in command:
-        command.remove('--no_limit')
-        amount = 0
+    async with ctx.typing():
+      if command:
+        amount=20
+        command = list(command)
+        # Remove max lookup amount
+        if '--no_limit' in command:
+          command.remove('--no_limit')
+          amount = 0
 
-      try:
-        level = int(command[0])
-        command = command[1:]
-      except: 
-        command = command
-        level = 0
-      summoner_name = command
-      lookup_name = ' '.join(command)
-      summoner_info = get_summoner_info(lookup_name)
-      mastery = get_summoner_mastery(lookup_name, level=level, amount=amount)
-      
-      if mastery:
-        description = ''
-        for item in mastery:
-          item = "**{}** Lvl {} - {}\n".format(item.get('Champion'), item.get('Level'), item.get('Points'))
-          description += item
-          
-      else:
-        description = "Mastery not found"
+        try:
+          level = int(command[0])
+          command = command[1:]
+        except: 
+          command = command
+          level = 0
+        summoner_name = command
+        lookup_name = ' '.join(command)
+        summoner_info = get_summoner_info(lookup_name)
+        mastery = get_summoner_mastery(lookup_name, level=level, amount=amount)
+        
+        if mastery:
+          description = ''
+          for item in mastery:
+            item = "**{}** Lvl {} - {}\n".format(item.get('Champion'), item.get('Level'), item.get('Points'))
+            description += item
+            
+        else:
+          description = "Mastery not found"
 
-      if summoner_info:
-        summoner_name = summoner_info.get('Summoner name')
-        summoner_icon = summoner_info.get('Icon')
-        embed=discord.Embed(
-          title='Mastery', 
-          description=description, 
-          color=discord.Color.gold()
+        if summoner_info:
+          summoner_name = summoner_info.get('Summoner name')
+          summoner_icon = summoner_info.get('Icon')
+          embed=discord.Embed(
+            title='Mastery', 
+            description=description, 
+            color=discord.Color.gold()
+            )
+          embed.set_author(
+          name="{}".format(summoner_name), 
+          icon_url=summoner_icon
           )
-        embed.set_author(
-        name="{}".format(summoner_name), 
-        icon_url=summoner_icon
-        )
-        await ctx.send(embed=embed)
-      else:
-        await ctx.send("Sorry, I couldn't find the mastery of {}".format(' '.join(summoner_name)))
+          await ctx.send(embed=embed)
+        else:
+          await ctx.send("Sorry, I couldn't find the mastery of {}".format(' '.join(summoner_name)))
 
-    else:
-      await ctx.send("Please give the name of the summoner you would like to have info on.")
+      else:
+        await ctx.send("Please give the name of the summoner you would like to have info on.")
 
 
 # Functions

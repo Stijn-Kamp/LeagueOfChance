@@ -39,29 +39,29 @@ class News(commands.Cog):
         if s.startswith('--category'):
             category = s.split('=')[-1]
             
+    async with ctx.typing():
+        articles = get_news(category)
 
-    articles = get_news(category)
-
-    for article in articles:
-        author = article.get('Author')
-        date_time = article.get('Time')
-        date_time = date_time.strftime('%d %B %Y')
-        footer = date_time
-        article_description=article.get('Description')
-        article_description = article_description if article_description else discord.Embed.Empty
-        if author:
-            footer = "{} - {}".format(author, footer)
-            
-        embed=discord.Embed(
-            title=article.get('Title'), 
-            url=article.get('Url'),
-            color=discord.Color.purple(),
-            description=article_description
-            )
-        embed.set_thumbnail(url=article.get('Image'))
-        embed.set_footer(text=footer)
-        embed.set_author(name=article.get('Category'))
-        await ctx.send(embed=embed)
+        for article in articles:
+            author = article.get('Author')
+            date_time = article.get('Time')
+            date_time = date_time.strftime('%d %B %Y')
+            footer = date_time
+            article_description=article.get('Description')
+            article_description = article_description if article_description else discord.Embed.Empty
+            if author:
+                footer = "{} - {}".format(author, footer)
+                
+            embed=discord.Embed(
+                title=article.get('Title'), 
+                url=article.get('Url'),
+                color=discord.Color.purple(),
+                description=article_description
+                )
+            embed.set_thumbnail(url=article.get('Image'))
+            embed.set_footer(text=footer)
+            embed.set_author(name=article.get('Category'))
+            await ctx.send(embed=embed)
     
 def get_news(category = None):
     BASE_URL = 'https://www.leagueoflegends.com'
