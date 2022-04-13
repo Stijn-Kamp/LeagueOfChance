@@ -19,7 +19,7 @@ class Teams(commands.Cog):
         server = ctx.message.guild
         
         if server is None:
-            reply = "You'll have to be in a server to join a team."
+            reply = "You have to be in a server to join a team."
         else:
             self.add_to_team(user, team_name=channel.name, id=server.id)
             reply = "{} joined {}".format(user.mention, channel.name)
@@ -33,7 +33,7 @@ class Teams(commands.Cog):
         server = ctx.message.guild
         
         if server is None:
-            reply = "You'll have to be in a server to leave a team."
+            reply = "You have to be in a server to leave a team."
         else:
             self.remove_from_team(user, team_name=channel.name, id=server.id)
             reply = "{} left {}".format(user.mention, channel.name)
@@ -46,7 +46,7 @@ class Teams(commands.Cog):
         server = ctx.message.guild
         
         if server is None:
-            reply = "You'll have to be in a server to reset a team."
+            reply = "You have to be in a server to reset a team."
         else:
             self.create_team(channel.name, server.id)
             reply = "You reset the team"
