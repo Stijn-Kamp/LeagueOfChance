@@ -1,5 +1,4 @@
 from sre_parse import CATEGORIES
-from unicodedata import category, name
 import discord #import all the necessary modules
 from discord.ext import commands
 from bs4 import BeautifulSoup

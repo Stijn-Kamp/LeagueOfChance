@@ -4,6 +4,7 @@ import sys
 from typing import Text
 import discord #import all the necessary modules
 from discord.ext import commands
+from Cogs.Graphs import Graphs
 
 from Cogs.RandomCommands import RandomCommands, random_quote, late_game
 from Cogs.SummonerInfo import SummonerCommands
@@ -11,6 +12,7 @@ from Cogs.Teams import Teams
 from Cogs.Tips import Tips
 from Cogs.News import News
 from Cogs.Yordle import Yordle
+from Cogs.Graphs import Graphs
 
 # command handling ----------------------------------
 class ErrorHandler(commands.Cog):
@@ -56,6 +58,7 @@ def create_bot():
     bot.add_cog(Tips(bot))
     bot.add_cog(News(bot))
     bot.add_cog(Yordle(bot))
+    bot.add_cog(Graphs(bot))
 
 
     return bot
