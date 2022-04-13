@@ -36,6 +36,7 @@ class Graphs(commands.Cog):
 
   @commands.command(name='masterygraph')
   async def create_mastery_graph(self, ctx, *summoner_name):
+    "Generates a graph of the mastery of a summoner"
     if summoner_name:
         summoner_name = ' '.join(summoner_name)
     async with ctx.typing():
