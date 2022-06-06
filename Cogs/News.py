@@ -42,7 +42,7 @@ class News(commands.Cog):
     async with ctx.typing():
         articles = get_news(category)
 
-        for article in articles:
+        for article in reversed(articles):
             author = article.get('Author')
             date_time = article.get('Time')
             date_time = date_time.strftime('%d %B %Y')
