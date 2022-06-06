@@ -13,6 +13,7 @@ from Cogs.Tips import Tips
 from Cogs.News import News
 from Cogs.Yordle import Yordle
 from Cogs.Graphs import Graphs
+from Cogs.Backstory import Backstory
 
 # command handling ----------------------------------
 class ErrorHandler(commands.Cog):
@@ -59,6 +60,7 @@ def create_bot():
     bot.add_cog(News(bot))
     bot.add_cog(Yordle(bot))
     bot.add_cog(Graphs(bot))
+    bot.add_cog(Backstory(bot))
 
 
     return bot
