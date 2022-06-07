@@ -180,10 +180,13 @@ def champion_build(name, role=None, ):
 
         print(url)
     try:
+        print('test')
         headers = {'user-agent': 'LeagueOfChange/1.0.0'}
         page = requests.get(url, headers=headers).text        
         soup = BeautifulSoup(page, 'html.parser')
         build = soup.find_all('ul')
+        print(len(build))
+        print(build)
         if build is None or len(build) < 12:
             return None
         
@@ -259,8 +262,7 @@ def champion_build(name, role=None, ):
     except SyntaxError as e:
         print(e)
         build = None
-    if role is not None:
-        url += "/statistics/{}/build".format(role)
+
     
     return build
 
