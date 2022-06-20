@@ -102,6 +102,44 @@ class Tips(commands.Cog):
         errorMessage = "Sorry, I couldn't find a build for {}.".format(' '.join(champion))
         await ctx.send(errorMessage)
 
+class Trends(commands.Cog):
+    """A collection of tips and tricks"""
+
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+
+    @staticmethod
+    def get_trends(champion, params=None):
+        if params is None:
+            params = "SUMMONERS_RIFT_DRAFT_PICK&region=WORLD"
+        URL = f"https://champion.gg/champion/{champion}?{params}"
+
+        try:
+            page = requests.get(URL).text
+            soup = BeautifulSoup(page, 'html.parser')
+            champion = soup.find('h1').text[:-4]
+            role = soup.find('option', selected=True).text
+            trends = soup.find_all(class_="type-body2")
+            trends = [trend.find_all('span')[1].text.replace(',', '') for trend in trends]
+            trends = {
+                'champion': champion,
+                'role': role,
+                'kills': trends[0],
+                'deaths': trends[1],
+                'assists': trends[2],
+                'damage': trends[3],
+                'damage mitigated': trends[4],
+                'gold earned': trends[5]
+            }
+        except AttributeError as e:
+            trends = {}
+        except Exception as e:
+            print(e)
+            trends = {}
+        finally:
+            return trends
+        
+
 
 # Functions
 def to_summoners_spell(string):
@@ -267,5 +305,5 @@ def champion_build(name, role=None, ):
     return build
 
 if __name__ == '__main__':
-    build = champion_build('teemo', 'aram')
+    build = champion_build(2)
     print(build)
